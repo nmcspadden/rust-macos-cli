@@ -1,5 +1,20 @@
 use core_foundation_sys::{ base::*, string::*, propertylist::* };
 
+use clap::Parser;
+
+// Ask for a key and domain
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    /// Preference domain/applicationID
+    #[arg(short, long)]
+    domain: String,
+
+    /// Key name
+    #[arg(short, long)]
+    key: String,
+}
+
 fn get_setting(key: &str, domain: &str) -> Option<String> {
     // Stolen from https://github.com/gyroflow/gyroflow/blob/c4241301ff427f9db58bebb0eb271a6bf2d9b9e1/src/core/util.rs#L152
     unsafe {
@@ -11,8 +26,8 @@ fn get_setting(key: &str, domain: &str) -> Option<String> {
         }
         let cfstr_key = cfstr(key);
         let cfstr_app = cfstr(domain);
-        let user = cfstr("kCFPreferencesAnyUser");
-        let host = cfstr("kCFPreferencesCurrentHost");
+        let user = cfstr("kCFPreferencesCurrentUser");
+        let host = cfstr("kCFPreferencesAnyHost");
         let ret = CFPreferencesCopyValue(cfstr_key, cfstr_app, user, host);
         CFRelease(cfstr_key as CFTypeRef);
         CFRelease(cfstr_app as CFTypeRef);
@@ -39,7 +54,9 @@ fn get_setting(key: &str, domain: &str) -> Option<String> {
 }
 
 fn main() {
-    let str_result = get_setting("SoftwareRepoURL", "ManagedInstalls");
+    let args = Args::parse();
+
+    let str_result = get_setting(&args.key, &args.domain);
     let display_str = str_result.as_deref().unwrap_or_default();
-    println!("The SoftwareRepoURL for Munki is {display_str}");
+    println!("Domain {} / {} = {}", args.domain, args.key, display_str);
 }
