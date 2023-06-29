@@ -6,4 +6,5 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+core-foundation = { git = "https://github.com/servo/core-foundation-rs.git" }
 core-foundation-sys = { git = "https://github.com/servo/core-foundation-rs.git" }
