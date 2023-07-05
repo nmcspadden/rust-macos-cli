@@ -9,3 +9,4 @@ edition = "2021"
 core-foundation = { git = "https://github.com/servo/core-foundation-rs.git" }
 core-foundation-sys = { git = "https://github.com/servo/core-foundation-rs.git" }
 clap = { version = "4.0", features = ["derive"] }
+libc = "0.2"
