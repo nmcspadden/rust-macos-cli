@@ -16,6 +16,24 @@ struct Args {
     key: String,
 }
 
+/* Here's how this should generally work:
+
+We get a value of a preference key from CFPreferencesCopyAppValue.
+This value can generally be a couple of different things, determined
+by enum PlistDataType. The primitive data types are int, bool, and 
+string. However, ObjectiveC returns a CFPropertyListRef, which needs
+to be matched to a specific data type before it can be used.
+
+If it's a string, we turn that into a CString pointer and then turn
+that into a Rust string via PlistDataType::Str(v).
+
+If it's an integer, we pass in a C-style pointer and get the value from
+CFNumber, and then cast that into an integer via PlistDataType::Int(v), which
+then needs unwrap_int() called on it.
+
+
+*/
+
 fn get_pref_forced(key: &str, domain: &str) -> Boolean {
     unsafe {
         extern "C" {
@@ -234,8 +252,11 @@ fn main() {
     display_str = str_result.as_deref().unwrap_or_default();
     println!("CopyAppValue: Domain {} / {} = {}", args.domain, args.key, display_str);
 
-    let int_result = get_int_pref_copyappvalue(&args.key, &args.domain);
-    // display_str = str_result.as_deref().unwrap_or_default();
-    println!("CopyIntAppValue: Domain {} / {} = {}", args.domain, args.key, int_result);
+    // This currently crashes if you try to read a string as an int;
+    // What needs to happen is it should read the value and then figure out how to cast it
+    
+    // let int_result = get_int_pref_copyappvalue(&args.key, &args.domain);
+    // // display_str = str_result.as_deref().unwrap_or_default();
+    // println!("CopyIntAppValue: Domain {} / {} = {}", args.domain, args.key, int_result);
 
 }
